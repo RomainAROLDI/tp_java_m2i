@@ -25,3 +25,8 @@ INSERT INTO priorite (id, nom)
 VALUES (1, 'BAS'),
        (2, 'IMPORTANT'),
        (3, 'URGENT');
+
+INSERT INTO categorie (nom)
+VALUES ('IT'),
+       ('HR'),
+       ('OTHER');
