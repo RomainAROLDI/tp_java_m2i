@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/ticket")
@@ -86,9 +87,21 @@ public class TicketController {
 
     @PutMapping("/{id}/resoudre")
     @IsAdministrateur
-    public Ticket resolveTicket(@PathVariable int id) {
-        Ticket ticket = ticketDao.findById(id).orElseThrow();
+    public ResponseEntity<Ticket> resolveTicket(@PathVariable int id, @AuthenticationPrincipal AppUserDetails userDetails) {
+        Ticket ticket = ticketDao.findById(id).orElse(null);
+
+        if (ticket == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Utilisateur resolveur = utilisateurDao.findById(userDetails.getUtilisateur().getId()).orElse(null);
+        if (resolveur == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
         ticket.setResolu(true);
-        return ticketDao.save(ticket);
+        ticket.setResolveur(resolveur);
+
+        return new ResponseEntity<>(ticketDao.save(ticket), HttpStatus.OK);
     }
 }

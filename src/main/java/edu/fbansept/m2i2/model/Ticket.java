@@ -38,6 +38,10 @@ public class Ticket {
     @JsonView(TicketView.class)
     private Utilisateur auteur;
 
+    @ManyToOne
+    @JsonView(TicketView.class)
+    private Utilisateur resolveur;
+
     @ManyToOne(optional = false)
     @JsonView(TicketView.class)
     private Priorite priorite;
