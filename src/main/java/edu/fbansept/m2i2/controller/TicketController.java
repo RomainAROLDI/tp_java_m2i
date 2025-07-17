@@ -30,7 +30,11 @@ public class TicketController {
 
     @GetMapping("/liste")
     @JsonView(TicketView.class)
-    public List<Ticket> getAll() {
+    public List<Ticket> getAll(@AuthenticationPrincipal AppUserDetails userDetails) {
+        if (userDetails == null || userDetails.getUtilisateur() == null) {
+            return ticketDao.findByResoluFalse();
+        }
+
         return ticketDao.findAll();
     }
 
@@ -45,7 +49,7 @@ public class TicketController {
 
         Utilisateur auteur = utilisateurDao.findById(userDetails.getUtilisateur().getId()).orElse(null);
 
-        if (auteur == null ) {
+        if (auteur == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
@@ -60,7 +64,7 @@ public class TicketController {
 
     @PutMapping("/{id}/resoudre")
     @IsAdministrateur
-    public Ticket resolveTicket( @PathVariable int id) {
+    public Ticket resolveTicket(@PathVariable int id) {
         Ticket ticket = ticketDao.findById(id).orElseThrow();
         ticket.setResolu(true);
         return ticketDao.save(ticket);
