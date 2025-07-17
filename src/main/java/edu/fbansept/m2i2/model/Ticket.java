@@ -1,31 +1,52 @@
 package edu.fbansept.m2i2.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import edu.fbansept.m2i2.view.TicketView;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 public class Ticket {
 
-    @Id @GeneratedValue
-    private Long id;
+    public interface add {
+    }
 
-    @NotBlank
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonView(TicketView.class)
+    protected Integer id;
+
+    @NotBlank(groups = {add.class})
+    @JsonView(TicketView.class)
     private String titre;
 
+    @NotBlank(groups = {add.class})
+    @JsonView(TicketView.class)
     private String description;
 
+    @JsonView(TicketView.class)
     private boolean resolu = false;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JsonView(TicketView.class)
     private Utilisateur auteur;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JsonView(TicketView.class)
     private Priorite priorite;
 
-    @ManyToOne
-    private Categorie categorie;
+    @ManyToMany
+    @JoinTable(
+            name = "categorie_ticket",
+            joinColumns = @JoinColumn(name = "ticket_id"),
+            inverseJoinColumns = @JoinColumn(name = "categorie_id"))
+    @JsonView(TicketView.class)
+    protected List<Categorie> categories = new ArrayList<>();
 }

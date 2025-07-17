@@ -1,8 +1,10 @@
 package edu.fbansept.m2i2.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonView;
+import edu.fbansept.m2i2.view.CategorieView;
+import edu.fbansept.m2i2.view.TicketView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +12,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Categorie {
-    @Id @GeneratedValue
-    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonView({TicketView.class, CategorieView.class})
+    protected Integer id;
+
+    @NotBlank
+    @Column(unique=true , nullable=false)
+    @JsonView({TicketView.class, CategorieView.class})
     private String nom;
 }
