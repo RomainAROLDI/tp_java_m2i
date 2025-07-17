@@ -21,26 +21,28 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/ticket")
 public class TicketController {
 
-    @Autowired
-    protected TicketDao ticketDao;
+    private final TicketDao ticketDao;
+    private final UtilisateurDao utilisateurDao;
+    private final PrioriteDao prioriteDao;
+    private final CategorieDao categorieDao;
 
     @Autowired
-    protected UtilisateurDao utilisateurDao;
-
-    @Autowired
-    protected PrioriteDao priorite;
-
-    @Autowired
-    private PrioriteDao prioriteDao;
-
-    @Autowired
-    private CategorieDao categorieDao;
+    public TicketController(
+            TicketDao ticketDao,
+            UtilisateurDao utilisateurDao,
+            PrioriteDao prioriteDao,
+            CategorieDao categorieDao
+    ) {
+        this.ticketDao = ticketDao;
+        this.utilisateurDao = utilisateurDao;
+        this.prioriteDao = prioriteDao;
+        this.categorieDao = categorieDao;
+    }
 
     @GetMapping("/liste")
     @JsonView(TicketView.class)
