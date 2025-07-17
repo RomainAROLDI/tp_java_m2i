@@ -1,8 +1,11 @@
 package edu.fbansept.m2i2.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import edu.fbansept.m2i2.dao.CategorieDao;
+import edu.fbansept.m2i2.dao.PrioriteDao;
 import edu.fbansept.m2i2.dao.TicketDao;
 import edu.fbansept.m2i2.dao.UtilisateurDao;
+import edu.fbansept.m2i2.model.Categorie;
 import edu.fbansept.m2i2.model.Priorite;
 import edu.fbansept.m2i2.model.Ticket;
 import edu.fbansept.m2i2.model.Utilisateur;
@@ -16,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,6 +31,15 @@ public class TicketController {
 
     @Autowired
     protected UtilisateurDao utilisateurDao;
+
+    @Autowired
+    protected PrioriteDao priorite;
+
+    @Autowired
+    private PrioriteDao prioriteDao;
+
+    @Autowired
+    private CategorieDao categorieDao;
 
     @GetMapping("/liste")
     @JsonView(TicketView.class)
@@ -48,16 +61,25 @@ public class TicketController {
         }
 
         Utilisateur auteur = utilisateurDao.findById(userDetails.getUtilisateur().getId()).orElse(null);
-
         if (auteur == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        ticket.setAuteur(auteur);
+        Priorite priorite = prioriteDao.findById(1).orElse(null);
+        if (priorite == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
-        Priorite priorite = new Priorite();
-        priorite.setId(1);
+        List<Categorie> categoriesFromDb = new ArrayList<>();
+        for (Categorie cat : ticket.getCategories()) {
+            Categorie categorie = categorieDao.findById(cat.getId())
+                    .orElseThrow(() -> new RuntimeException("Categorie non trouvée : " + cat.getId()));
+            categoriesFromDb.add(categorie);
+        }
+
+        ticket.setAuteur(auteur);
         ticket.setPriorite(priorite);
+        ticket.setCategories(categoriesFromDb);
 
         return new ResponseEntity<>(ticketDao.save(ticket), HttpStatus.OK);
     }
